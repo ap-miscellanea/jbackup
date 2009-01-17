@@ -64,7 +64,7 @@
 ## the program ##
 use strict;
 use Getopt::Long;
-use GDBM_File;
+use DB_File;
 use Data::Dumper;
 use XMLRPC::Lite;
 use XML::Parser;
@@ -646,7 +646,7 @@ sub do_alter_security {
 
     # tell user to run --sync
     print "WARNING: you should now run jbackup.pl again with the --sync\n" .
-          "option, AFTER making a backup copy of your current jbak GDBM\n" .
+          "option, AFTER making a backup copy of your current jbak DB\n" .
           "file. That way, if anything got messed up, you still have your journal.\n";
 }
 
@@ -956,15 +956,15 @@ sub do_flush {
 sub do_tie {
     # try to open the database for access
     d("do_tie: tying database");
-    my $x = tie %bak, 'GDBM_File', $filename, &GDBM_WRCREAT, 0600
-        or die "Could not open/tie $filename: $!\n";
+    my $x = tie %bak, 'DB_File', $filename, O_RDWR| O_CREAT , 0600, $DB_HASH or die "Could not open/tie $filename: $!\n";
     return $x;
 };
 
 sub do_untie {
     # close our database.
     d("do_untie: untying database");
-    return untie %bak;
+    untie %bak || die "I could not untie the DB: $!";
+    return
 };
 
 sub do_abort {
@@ -975,7 +975,7 @@ sub do_abort {
 };
 
 sub raw_dump {
-    # dump out the raw GDBM data
+    # dump out the raw DB data
     while (my ($k, $v) = each %bak) {
         print "$k = $v\n";
     }
