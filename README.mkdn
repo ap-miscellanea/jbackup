@@ -1,0 +1,64 @@
+Modified jbackup
+================
+
+This version of [SixApart’s utility][1] incorporates [Jesse
+Vincent’s modifications][2] for using BerkleyDB instead of the
+GDBM library and additionally adds switches that allow the user
+to specify the configuration and the location of the sync
+database file.
+
+[1]: http://code.sixapart.com/svn/livejournal/trunk/src/jbackup/
+[2]: http://code.bestpractical.com/bps-public/jbackup/
+
+Usage
+=====
+
+    jbackup.pl -- journal database generator and formatter
+    
+      Informative/behavior options:
+        --help          Prints this help you see.
+        --quiet         Suppress progress printing to standard error.
+    
+      Authentication options:
+        --user=X        Specify the user to use for authentication.
+        --password=X    Specify the password to use for the user.
+        --md5pass=X     Alternately, provide the MD5 digest of the password.
+        --journal=X     Specify an alternate journal to use.
+                        NOTE: You must be maintainer of the journal.
+        --server=X      Use a different server.  (Default: www.livejournal.com)
+        --port=X        Use a non-default port.  (Default: 80)
+        --config=X      Specify a configuration file other than ~/.jbackup.
+    
+      Data update options:
+        --sync          Update or create the database.
+        --no-comments   Do not update comment information.  (Much faster.)
+        --dbpath=X      Store sync database in this directory.
+    
+      Journal modification options:
+        --alter-security=X  Change the security setting of your public entries.
+        --confirm-alter     Confirm that you wish to actually edit your entries.
+    
+      Data output options:
+        --dump=X        Dump data in the specified format: html, xml, raw.
+        --publiconly    When dumping, only spit out public entries.
+        --file=X        Dump to specified file instead of the screen.
+    
+    Usage examples:
+    
+       ./jbackup.pl --sync
+    Create or update the local copy of your journal.  You can put this command
+    in a cron or just run it whenever you want.
+    
+       ./jbackup.pl --alter-security=friends
+    If you wish to alter all of your public entries to be friends only, you can
+    use this command to see exactly what will be done.  If you are sure that
+    the program is going to take the actions you want, add the 'confirm-alter'
+    command line flag.  You can also specify private or the name of some friend
+    group that you have defined.
+    
+    The script also checks for the presence of a ~/.jbackup file, and you can
+    put options into it like this:
+    
+    user=test
+    password=test
+    publiconly=1

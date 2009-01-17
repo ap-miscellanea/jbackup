@@ -72,7 +72,7 @@ use Digest::MD5 qw(md5_hex);
 use Term::ReadKey;
 
 # get options
-my %opts;
+my %opts = (config => "$ENV{HOME}/.jbackup", dbpath => $ENV{HOME});
 exit 1 unless
     GetOptions("dump=s" => \$opts{dumptype},
                "sync" => \$opts{sync},
@@ -84,6 +84,8 @@ exit 1 unless
                "publiconly" => \$opts{public},
                "journal=s" => \$opts{usejournal},
                "clean" => \$opts{clean},
+               "config=s" => \$opts{config},
+               "dbpath=s" => \$opts{dbpath},
                "file=s" => \$opts{file},
                "password=s" => \$opts{password},
                "md5pass=s" => \$opts{md5password},
@@ -92,9 +94,9 @@ exit 1 unless
                "no-comments" => \$opts{no_comments},);
 
 # hit up .jbackup for other options
-if (-e "$ENV{HOME}/.jbackup") {
+if (-e $opts{config}) {
     # read in the options
-    open FILE, "<$ENV{HOME}/.jbackup";
+    open FILE, '<', $opts{config};
     foreach (<FILE>) {
         $opts{$1} = $2
             if /^(.+)=(.+)[\r\n]*$/;
@@ -130,10 +132,12 @@ jbackup.pl -- journal database generator and formatter
                     NOTE: You must be maintainer of the journal.
     --server=X      Use a different server.  (Default: www.livejournal.com)
     --port=X        Use a non-default port.  (Default: 80)
+    --config=X      Specify a configuration file other than ~/.jbackup.
 
   Data update options:
     --sync          Update or create the database.
     --no-comments   Do not update comment information.  (Much faster.)
+    --dbpath=X      Store sync database in this directory.
 
   Journal modification options:
     --alter-security=X  Change the security setting of your public entries.
@@ -189,7 +193,7 @@ $opts{linkuser} = $opts{usejournal} || $opts{user};
 
 # setup some global variables
 my %bak;
-my $filename = "$ENV{HOME}/$opts{user}." . ($opts{usejournal} ? "$opts{usejournal}." : '') . "jbak";
+my $filename = "$opts{dbpath}/$opts{user}." . ($opts{usejournal} ? "$opts{usejournal}." : '') . "jbak";
 
 # setup database
 my $tied = do_tie();
